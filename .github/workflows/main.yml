@@ -1,1 +1,32 @@
+name: Scraper Worker
 
+on:
+  schedule:
+    - cron: "*/10 * * * *" # cada 10 minutos
+  workflow_dispatch: # ejecutarlo manualmente
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Instalar Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Instalar dependencias
+        run: npm install
+
+      - name: Ejecutar scraper
+        run: node scripts/scrape.js
+
+      - name: Commit de resultados
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add data/results.json
+          git commit -m "update data" || echo "No changes"
+          git push
