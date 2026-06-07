@@ -1,4 +1,4 @@
-const { google } from 'googleapis';
+import { google } from 'googleapis';
 
 // Autenticación directa mediante el Access Token temporal de Google
 const auth = new google.auth.OAuth2();
