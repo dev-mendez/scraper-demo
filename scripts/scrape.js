@@ -7,7 +7,10 @@ auth.setCredentials({
 });
 
 const sheets = google.sheets({ version: 'v4', auth });
-const spreadsheetId = process.env.GOOGLE_SHEET_ID;
+const defaultSheetUrl = 'https://docs.google.com/spreadsheets/d/1XPVXdd52HCdMNlvD53yD77VY6uwNnhfOPhB87PCjmyA/edit?pli=1&gid=0#gid=0';
+const spreadsheetId =
+  process.env.GOOGLE_SHEET_ID ||
+  defaultSheetUrl.match(/\/d\/([^/]+)/)?.[1];
 
 async function guardarDatos() {
   try {
