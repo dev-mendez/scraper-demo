@@ -1,25 +1,29 @@
-import axios from "axios";
-import * as cheerio from "cheerio";
-import fs from "fs";
+const { google } = require('googleapis');
 
-async function scrape() {
-  const url = "https://quotes.toscrape.com/";
-  const { data } = await axios.get(url);
+// Autenticación directa mediante el Access Token temporal de Google
+const auth = new google.auth.OAuth2();
+auth.setCredentials({
+  access_token: process.env.GOOGLE_ACCESS_TOKEN
+});
 
-  const $ = cheerio.load(data);
+const sheets = google.sheets({ version: 'v4', auth });
+const spreadsheetId = process.env.GOOGLE_SHEET_ID;
 
-  const quotes = [];
+async function guardarDatos() {
+  try {
+    const filaNueva = ['Fecha Hoy', 'Producto Ejemplo', '$99.99']; 
 
-  $(".quote").each((i, el) => {
-    const text = $(el).find(".text").text().trim();
-    const author = $(el).find(".author").text().trim();
+    await sheets.spreadsheets.values.append({
+      spreadsheetId,
+      range: 'Hoja 1!A:C', // Ajusta el nombre de tu pestaña
+      valueInputOption: 'USER_ENTERED',
+      resource: { values: [filaNueva] }
+    });
 
-    quotes.push({ text, author });
-  });
-
-  fs.writeFileSync("./data/results.json", JSON.stringify(quotes, null, 2));
-
-  console.log("Scraping completado. Guardado en data/results.json");
+    console.log('¡Datos guardados con éxito!');
+  } catch (error) {
+    console.error('Error al guardar en Google Sheets:', error);
+  }
 }
 
-scrape();
+guardarDatos();
