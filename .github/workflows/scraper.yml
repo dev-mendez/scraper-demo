@@ -28,7 +28,10 @@ jobs:
 
       - name: Ejecutar scraper
         run: node scripts/scrape.js
-
+        env: 
+            GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+            GOOGLE_ACCESS_TOKEN: ${{ secrets.GOOGLE_ACCESS_TOKEN }}
+           
       - name: Commit de resultados
         run: |
           git config user.name "github-actions"
