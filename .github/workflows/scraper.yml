@@ -2,8 +2,8 @@ name: Scraper Worker
 
 on:
   schedule:
-    - cron: "*/10 * * * *" # cada 10 minutos
-  workflow_dispatch: # ejecutarlo manualmente
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -14,7 +14,6 @@ jobs:
     permissions:
       contents: write
 
-
     steps:
       - uses: actions/checkout@v4
 
@@ -23,15 +22,19 @@ jobs:
         with:
           node-version: 20
 
+      - name: Autenticación con Google
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+
       - name: Instalar dependencias
         run: npm install
 
       - name: Ejecutar scraper
         run: node scripts/scrape.js
-        env: 
-            GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
-            GOOGLE_ACCESS_TOKEN: ${{ secrets.GOOGLE_ACCESS_TOKEN }}
-           
+        env:
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+
       - name: Commit de resultados
         run: |
           git config user.name "github-actions"
