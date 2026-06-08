@@ -1,28 +1,33 @@
-import { google } from 'googleapis';
+import { google } from "googleapis";
+import { GoogleAuth } from "google-auth-library";
 
-// Autenticación directa mediante el Access Token temporal de Google
-const auth = new google.auth.OAuth2();
-auth.setCredentials({
-  access_token: process.env.GOOGLE_ACCESS_TOKEN
-});
-
-const sheets = google.sheets({ version: 'v4', auth });
 const spreadsheetId = process.env.GOOGLE_SHEET_ID;
 
 async function guardarDatos() {
   try {
-    const filaNueva = ['Fecha Hoy', 'Producto Ejemplo', '$99.99']; 
+    // Autenticación con Service Account usando GOOGLE_CREDENTIALS
+    const auth = new GoogleAuth({
+      credentials: JSON.parse(process.env.GOOGLE_CREDENTIALS),
+      scopes: ["https://www.googleapis.com/auth/spreadsheets"]
+    });
+
+    const client = await auth.getClient();
+    const sheets = google.sheets({ version: "v4", auth: client });
+
+    const filaNueva = ["Fecha Hoy", "Producto Ejemplo", "$99.99"];
 
     await sheets.spreadsheets.values.append({
       spreadsheetId,
-      range: 'Hoja 1!A:C', // Ajusta el nombre de tu pestaña
-      valueInputOption: 'USER_ENTERED',
-      resource: { values: [filaNueva] }
+      range: "Hoja 1!A:C",
+      valueInputOption: "USER_ENTERED",
+      requestBody: {
+        values: [filaNueva]
+      }
     });
 
-    console.log('¡Datos guardados con éxito!');
+    console.log("¡Datos guardados con éxito!");
   } catch (error) {
-    console.error('Error al guardar en Google Sheets:', error);
+    console.error("Error al guardar en Google Sheets:", error);
   }
 }
 
